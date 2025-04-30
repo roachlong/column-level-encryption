@@ -1,0 +1,3 @@
+[submodule "Sparkov_Data_Generation"]
+	path = Sparkov_Data_Generation
+	url = https://github.com/namebrandon/Sparkov_Data_Generation.git
