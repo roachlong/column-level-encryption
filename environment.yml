@@ -1,0 +1,12 @@
+name: col-encrypt
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - cryptography
+  - faker
+  - numpy
+  - psycopg
+  - psycopg2
+  - PySimpleGUI
+  - python.app
