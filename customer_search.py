@@ -96,14 +96,14 @@ def main():
         [sg.Text("Select last name:"),
          sg.Combo(last_names, key="-LAST-", size=(30,1), enable_events=True)],
         [sg.Table(
-            values=[[]],
+            values=rows_data,
             headings=header,
-            auto_size_columns=True,
-            display_row_numbers=False,
-            justification="left",
             key="-TABLE-",
-            num_rows=10,
-            enable_events=True,
+            auto_size_columns=True,
+            justification="left",
+            num_rows=5,
+            enable_events=True,         # fires '-TABLE-' on row‐select
+            enable_click_events=True,   # fires a ('-TABLE-','+CLICKED+') event on any click
             select_mode=sg.TABLE_SELECT_MODE_BROWSE
         )],
         [sg.Button("Exit")]
@@ -111,33 +111,43 @@ def main():
     window = sg.Window("Customer Lookup", layout, finalize=True)
 
     # Bind double-click on table to copy cell
-    table_elem = window["-TABLE-"]
-    table_widget = table_elem.Widget
-    def copy_cell(event):
-        # Identify region, row, col under click
-        region = table_widget.identify("region", event.x, event.y)
-        if region == "cell":
-            row_id = table_widget.identify_row(event.y)
-            col_id = table_widget.identify_column(event.x)
-            if row_id and col_id:
-                row_idx = table_widget.index(row_id)
-                col_idx = int(col_id.replace('#','')) - 1
-                try:
-                    val = rows_data[row_idx][col_idx]
-                except Exception:
-                    return
-                # Copy to clipboard
-                window.TKroot.clipboard_clear()
-                window.TKroot.clipboard_append(str(val))
-                sg.popup_quick_message(f"Copied: {val}", auto_close=True, non_blocking=True)
-    # Use double-click (Button-1 Double) to trigger
-    table_widget.bind('<Double-1>', copy_cell)
+    # table_elem = window["-TABLE-"]
+    # table_widget = table_elem.Widget
+    # def copy_cell(event):
+    #     # Identify region, row, col under click
+    #     region = table_widget.identify("region", event.x, event.y)
+    #     if region == "cell":
+    #         row_id = table_widget.identify_row(event.y)
+    #         col_id = table_widget.identify_column(event.x)
+    #         if row_id and col_id:
+    #             row_idx = table_widget.index(row_id)
+    #             col_idx = int(col_id.replace('#','')) - 1
+    #             try:
+    #                 val = rows_data[row_idx][col_idx]
+    #             except Exception:
+    #                 return
+    #             # Copy to clipboard
+    #             window.TKroot.clipboard_clear()
+    #             window.TKroot.clipboard_append(str(val))
+    #             sg.popup_quick_message(f"Copied: {val}", auto_close=True, non_blocking=True)
+    # # Use double-click (Button-1 Double) to trigger
+    # table_widget.bind('<Double-1>', copy_cell, add='+')
 
     # 4) event loop
     while True:
         event, values = window.read()
         if event in (sg.WIN_CLOSED, "Exit"):
             break
+
+        # Catch table clicks
+        if isinstance(event, tuple) and event[0] == "-TABLE-" and event[1] == "+CLICKED+":
+            # event is ('-TABLE-', '+CLICKED+', (row, col))
+            row, col = event[2]
+            val = rows_data[row][col]
+            # Copy to clipboard
+            window.TKroot.clipboard_clear()
+            window.TKroot.clipboard_append(str(val))
+            sg.popup_quick_message(f"Copied: {val}", auto_close=True, non_blocking=True)
 
         if event == "-LAST-":
             last = values["-LAST-"]
