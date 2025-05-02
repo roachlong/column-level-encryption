@@ -1,5 +1,5 @@
 # column-level-encryption
-This repo provides a demonstration and general recommendation on how to use field level encryption in CRDB.  Below is a summary of the column-level encryption demo, where multiple keys are maintained in a registry and envelope encryption is used to ease key management.  We also leverage a common table expression to obfuscate key usage in application queries.
+This repo provides a demonstration and general recommendations on how to use field level encryption in CRDB.  Below is a summary of the column-level encryption demo, where multiple keys are maintained in a registry and envelope encryption with a single master key is used to ease key management.  We also leverage a common table expression to unwrap data encryption keys and obfuscate key usage inside application queries.
 
 <p align="left">
 <img src="https://github.com/user-attachments/assets/0b11d7f8-d111-4a16-87cf-c1ca3bb0b8f8" alt="Encryption Flow" height="450px" align="left"/>
@@ -16,12 +16,12 @@ This repo provides a demonstration and general recommendation on how to use fiel
 <ul>
   <li>Retrieve the Master Key from the vault.</li>
   <li>Fetch wrapped DEKs from the Key Registry and unwrap them to plaintext DEKs.</li>
-  <li>Build a SQL CTE of (key_id, data_key) pairs in your query.</li>
+  <li>Build a SQL CTE of (key_id, data_key) pairs to be used with your queries.</li>
   <li>Decrypt fields on the fly using decrypt_iv(data_key, iv) in the query, returning cleartext results.</li>
 </ul>
 
 <br clear="all"/>
-The Master Key is never stored in‐database, while the data encryption keys can safely reside in the database protected by asymmetric master key encryption.  Each encrypted field retains its IV and a reference to the key id and metadata for robust security and auditability.
+The Master Key is never stored in the database, while the data encryption keys can safely reside in the database since they are protected by asymmetric master key encryption.  Each encrypted field retains its IV and a reference to the key id and metadata for robust security and auditability.
 </p>
 
 
@@ -75,4 +75,4 @@ This approach “hides” all the raw DEKs inside the automatically-generated CT
 
 The data layer can use that CTE to provide each row the correct key for AES decryption, transparently to the rest of your application.
 
-For more information on environment setup and the steps required to build and run the demonstration please visit our [wiki pages](https://github.com/roachlong/column-level-encryption/wiki)
+For more information on environment setup and the steps required to build and run the demonstration please see our [wiki pages](https://github.com/roachlong/column-level-encryption/wiki)
