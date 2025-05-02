@@ -139,15 +139,21 @@ def main():
         if event in (sg.WIN_CLOSED, "Exit"):
             break
 
-        # Catch table clicks
+        # Handle table click events, but only when clicking a cell
         if isinstance(event, tuple) and event[0] == "-TABLE-" and event[1] == "+CLICKED+":
-            # event is ('-TABLE-', '+CLICKED+', (row, col))
-            row, col = event[2]
-            val = rows_data[row][col]
-            # Copy to clipboard
-            window.TKroot.clipboard_clear()
-            window.TKroot.clipboard_append(str(val))
-            sg.popup_quick_message(f"Copied: {val}", auto_close=True, non_blocking=True)
+            coords = event[2]
+            # Only proceed if coords is a valid (row, col) tuple
+            if coords and isinstance(coords, tuple):
+                row, col = coords
+                if row is not None and col is not None:
+                    try:
+                        val = rows_data[row][col]
+                    except Exception:
+                        continue
+                    # Copy to clipboard
+                    window.TKroot.clipboard_clear()
+                    window.TKroot.clipboard_append(str(val))
+                    sg.popup_quick_message(f"Copied: {val}", auto_close=True, non_blocking=True)
 
         if event == "-LAST-":
             last = values["-LAST-"]
